@@ -1,0 +1,78 @@
+<html>
+<head>
+	<title>Chat!</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+
+    <style>
+        #msgs {
+            width : 80%;
+            height: 80%;
+            min-height : 70%;
+            border: 1px solid black;
+            padding: 5px;
+            overflow: auto;
+            text-align: left;
+        }
+        #inp {
+            font-size: 20px;
+            width : 70%;
+        }
+        #sendmsg {
+            border-radius: 50%;
+            width:30px;
+            height: 30px;
+            color: #fff;
+            background-color: rgb(44, 150, 74);
+        }
+    </style>
+</head>
+<body>
+Room Name : <span id = "roomname"></span><br>
+Room Code : <span id = "roomcode"></span><br>
+Your Name : <span id = "yourname"></span><br>
+Users Active : <span id = "active"></span><br>
+
+<center>
+    <div id = "msgs">
+    </div><br>
+    <input type="text" placeholder="Start Typing..." id="inp" autofocus>&nbsp;&nbsp;&nbsp;<input type="button" id = "sendmsg" value=">>" onclick="sendMessage()">
+</center>
+
+<script type="text/javascript">
+    var name = sessionStorage.getItem("name");
+    var rcode = sessionStorage.getItem("roomcode");
+
+    var socket = io.connect('http://' + document.domain + ':'+location.port);
+
+    socket.on('connect', function() {
+        socket.emit('send info', rcode);
+    });
+
+    function sendMessage() {
+        socket.emit('send message', {
+            user : name,
+            message : $("#inp").val(),
+            rcode : rcode
+        });
+        $("#inp").val('');
+    }
+
+    socket.on(rcode, function(msg) {
+        $("#msgs").append("<b>" + msg.user +": </b>" + msg.message + "<br>");
+    });
+
+    socket.on('get info '+rcode, function(roomstatus) {
+        $("#roomname").html(roomstatus.roomname);
+        $("#roomcode").html(rcode);
+        $("#yourname").html(name);
+        $("#active").html(roomstatus.active);
+    });
+
+    document.addEventListener("keydown", function(e) {
+        if (e.keyCode == 13) {sendMessage();}
+    });
+</script>
+
+</body>
+</html>
