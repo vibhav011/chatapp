@@ -100,7 +100,6 @@ Users Active : <span id = "active"></span><br>
     }
 
     socket.on(rcode, function(msg) {
-        ScrollDiv();
         var cls = 'type1';
         if (name == msg.user) cls = 'type2';
         var ind = usersOnline.indexOf(msg.user);
@@ -110,6 +109,7 @@ Users Active : <span id = "active"></span><br>
         ind = usersOnline.indexOf(msg.user);
         var col = colors[ind%colors.length];
         $("#msgs").append("<div class='wrapper'><div class='msg "+cls+"'><span class='sender'><font color='"+col+"'>" + msg.user +"</font></span><br><span class='txt'>" + msg.message + "</span></div></div><br>");
+        ScrollDiv();
     });
 
     socket.on('get info '+rcode, function(roomstatus) {
