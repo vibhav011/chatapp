@@ -1,11 +1,5 @@
 from flask import Flask, render_template
 from flask_socketio import SocketIO
-# from random import seed
-# from random import random
-# import time
-# import math
-
-# seed(time.time())
 
 chatrooms = []
 
