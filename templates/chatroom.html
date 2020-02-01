@@ -55,7 +55,7 @@ Users Active : <span id = "active"></span><br>
             message : $("#inp").val(),
             rcode : rcode
         });
-        $("#inp").val('');
+        $("#inp").val('').focus();
     }
 
     socket.on(rcode, function(msg) {
