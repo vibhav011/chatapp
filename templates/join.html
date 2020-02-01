@@ -3,59 +3,148 @@
 	<title>Join Chatroom</title>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+
+	<style>
+		table {
+			position: absolute;
+			width: 80%;
+			margin-left: 10%;
+			text-align: center;
+			vertical-align: middle;
+			top: 30%;
+			-ms-transform: translateY(-50%);
+			transform: translateY(-50%);
+			border: none;
+		}
+		td {
+			padding: 5px;
+		}
+		
+		.card {
+			padding: 10px;
+			margin-left: auto;
+			margin-right: auto;
+			width : 90%;
+			box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+			color: #999;
+			font-size: 30px;
+			font-family: Arial;
+		}
+		#nameheader {
+			padding: 10px;
+			width: 100%;
+			margin-left: auto;
+			margin-right: auto;
+			box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+		}
+		input[type="text"] {
+			text-align: center;
+			height: 45px;
+			font-size: 20px;
+		}
+		input[type=button] {
+		    background-color:#FF751A;
+		    border: none;
+		    color: white;
+		    padding: 15px 32px;
+		    text-align: center;
+		    text-decoration: none;
+		    display: inline-block;
+		    font-size: 2.85vh;
+		    margin: 4px 2px;
+		    cursor: pointer;
+		    -webkit-transition-duration: 0.4s; /* Safari */
+		    transition-duration: 0.4s;
+		}
+		input[type=button]:hover {
+		    box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
+		    background-color: #FFFFFF;
+		    color: #FF751A;
+		}
+		.warning {
+			font-size: 20px;
+			color: #ff0000;
+		}
+	</style>
 </head>
 
 <body>
-	<input type = "text" id = "username" placeholder="Your Name">
-	<fieldset>
-		<legend>Create Chatroom</legend>
 
-		<input type = "text" id = "roomname" placeholder="Room Name">
-		<input type = "button" value = "Create" onclick = "create()">
-		<div id = "createstatus"></div>
-	</fieldset>
-
-	<fieldset>
-		<legend>Join Chatroom</legend>
-
-		<input type = "text" id = "roomcode" placeholder="Room Code">
-		<input type = "button" value = "Join" onclick = "join()">
-		<div id = "joinstatus"></div>
-	</fieldset>
+	<table>
+		<tr>
+			<td colspan = "2">
+				<div id = "nameheader">
+					<input type = "text" id = "username" placeholder="Your Name*">
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<div class = "card">
+					<span class = "heading">Create Chatroom</span><br>
+					<font size="3"><br></font>
+					<input type = "text" id = "roomname" placeholder="Room Name"><br><font size="2"><br></font>
+					<input type = "button" value = "Create" onclick = "create()">
+					<br><div class = "warning" id = "createstatus"><br></div>
+				</div>
+			</td>
+			<td>
+				<div class = "card">
+					<span class = "heading">Join Chatroom</span><br>
+					<font size="3"><br></font>
+					<input type = "text" id = "roomcode" placeholder="Room Code"><br><font size="2"><br></font>
+					<input type = "button" value = "Join" onclick = "join()">
+					<br><div class = "warning" id = "joinstatus"><br></div>
+				</div>
+			</td>
+		</tr>
+	</table>
 
 	<script type="text/javascript">
 		var socket = io.connect('http://' + document.domain + ':'+location.port);
 		var uniqueID = Math.floor(Math.random()*100000) + '';
 		rcode = uniqueID;
 		var btn = 0;		// 0 if create is pressed; 1 otherwise
-		var rc;
+		var rc, name;
 
 		function create() {
-			socket.emit('create request', {
-				roomname : $("#roomname").val(),
-				id : uniqueID
-			});
+			name = $("#username").val().trim();
+			var rn = $("#roomname").val().trim();
+			if (name != "" && rn != "") {
+				socket.emit('create request', {
+					roomname : rn,
+					id : uniqueID
+				});
+			}
+			else {
+				$("#createstatus").html("Value can't be empty");
+			}
 		}
 
 		function join() {
-			btn = 1;
-			rc = $("#roomcode").val();
-			socket.emit('join request', {
-				roomcode : rc,
-				id : uniqueID
-			});
-			rcode = rc;
+			name = $("#username").val().trim();
+			if (name != "") {
+				btn = 1;
+				rc = $("#roomcode").val();
+				socket.emit('join request', {
+					roomcode : rc,
+					id : uniqueID
+				});
+				rcode = rc;
+			}
+			else {
+				$("#joinstatus").html("Value can't be empty");
+			}
 		}
 
 		socket.on(uniqueID, function(msg) {
 
 			if (msg == "0") {
-				ids = ["createstatus", "joinstatus"];
-				dms = ["Already Taken", "Does not exist"];
-				document.getElementById(ids[btn]).innerHTML = "<font color='#ff0000'>" + dms[btn] + "</font>";
+				var ids = ["createstatus", "joinstatus"];
+				var dms = ["Already Taken", "Does not exist"];
+				document.getElementById(ids[btn]).innerHTML = dms[btn];
 			}
 			else {
-				name = $("#username").val();
 				sessionStorage.setItem('roomcode', rcode);
 				sessionStorage.setItem('name', name);
 
