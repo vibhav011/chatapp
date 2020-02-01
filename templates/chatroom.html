@@ -44,6 +44,7 @@
             background-color: #DCF8C6;
         }
         .sender {
+            font-weight: bold;
             font-size: 13px;
         }
         .txt {
@@ -73,6 +74,15 @@ Users Active : <span id = "active"></span><br>
     var name = sessionStorage.getItem("name");
     var rcode = sessionStorage.getItem("roomcode");
 
+    var colors = ["#239D00", "#1F7AEC", "#91AB00", "#DFB611", "#35CD96", "#E543A3", "#59D368", "#B14834", "#FCA97A", "#8E7EDE", "#FB8F2E", "#8393CA", "#CC1483"];
+
+    for (let i = colors.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [colors[i], colors[j]] = [colors[j], colors[i]];
+    }
+
+    var usersOnline = [];
+
     var socket = io.connect('http://' + document.domain + ':'+location.port);
 
     socket.on('connect', function() {
@@ -91,7 +101,13 @@ Users Active : <span id = "active"></span><br>
     socket.on(rcode, function(msg) {
         var cls = 'type1';
         if (name == msg.user) cls = 'type2';
-        $("#msgs").append("<div class='wrapper'><div class='msg "+cls+"'><span class='sender'>" + msg.user +"</span><br><span class='txt'>" + msg.message + "</span></div></div><br>");
+        var ind = usersOnline.indexOf(msg.user);
+        if (ind == -1) {
+            usersOnline[usersOnline.length] = msg.user;
+        }
+        ind = usersOnline.indexOf(msg.user);
+        var col = colors[ind%colors.length];
+        $("#msgs").append("<div class='wrapper'><div class='msg "+cls+"'><span class='sender'><font color='"+col+"'>" + msg.user +"</font></span><br><span class='txt'>" + msg.message + "</span></div></div><br>");
     });
 
     socket.on('get info '+rcode, function(roomstatus) {
