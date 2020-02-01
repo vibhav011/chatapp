@@ -15,6 +15,7 @@
             text-align: left;
             background-image: url("https://www.w3schools.com/cssref/paper.gif");
             background-repeat: repeat;
+            overflow: auto;
         }
         #inp {
             font-size: 20px;
@@ -52,8 +53,8 @@
         }
         .wrapper {
             float: left;
-            max-width: 100%;
-            min-width: 100%;
+            max-width: 99%;
+            min-width: 99%;
             margin: 3px;
         }
     </style>
@@ -99,6 +100,7 @@ Users Active : <span id = "active"></span><br>
     }
 
     socket.on(rcode, function(msg) {
+        ScrollDiv();
         var cls = 'type1';
         if (name == msg.user) cls = 'type2';
         var ind = usersOnline.indexOf(msg.user);
@@ -116,6 +118,10 @@ Users Active : <span id = "active"></span><br>
         $("#yourname").html(name);
         $("#active").html(roomstatus.active);
     });
+
+    function ScrollDiv(){
+        document.getElementById('msgs').scrollTop += (document.getElementById('msgs').scrollHeight-document.getElementById('msgs').offsetHeight+1);
+    }
 
     document.addEventListener("keydown", function(e) {
         if (e.keyCode == 13) {sendMessage();}
